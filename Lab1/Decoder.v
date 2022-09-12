@@ -51,6 +51,17 @@ module Decoder(
     wire ALUOp ;
     reg [9:0] controls ;
     //<extra signals, if any>
+    wire Branch;
+    
+    //PC Logic
+    assign PCS = ((Rd == 15) & RegW) | Branch;
+    
+    //Main Decoder
+    assign Branch = Op[1];
+    assign RegW = (Op[0])? Funct[0]:~Op[1];
+    assign MemW = (Op[0])? ~Funct[0]:0;
+    //assign MemtoReg = Op[0] & Funct[0];
+    
     
 endmodule
 
