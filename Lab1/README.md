@@ -1,0 +1,1 @@
+There are basically 4 files you need to populate/modify - **CondLogic.vhd/.v**, **Decoder.vhd/.v**, **ARM.vhd/.v**; You will also need to paste your code/constant memories from Hex2ROM program into **Wrapper.vhd/v**. 
