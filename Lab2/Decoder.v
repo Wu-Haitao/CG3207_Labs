@@ -58,11 +58,50 @@ module Decoder(
     
     //Main Decoder
     assign Branch = Op[1];
+    assign ALUOp = !Op;
+    
     assign RegW = (Op[0])? Funct[0]:~Op[1];
     assign MemW = (Op[0])? ~Funct[0]:0;
-    //assign MemtoReg = Op[0] & Funct[0];
+    assign MemtoReg = Op[0];
+    assign ALUSrc = !(Op | Funct[5]]);
+    assign ImmSrc = Op[1:0];
+    assign RegSrc = Op[0:1];
+    assign NoWrite = (Funct[4:0] == 5'b10101);
     
-    
+    //ALU Decoder
+    always @(*)
+    begin
+    	if (ALUOp == 1)
+    	begin
+    		case (Funct[4:1])
+    			4'b0100:
+    			begin
+    				ALUControl = 2'b00;
+    				FlagW = (Funct[0])? 2'b11:2'b00;
+    			end
+    			4'b0010:
+    			begin
+    				ALUControl = 2'b01;
+    				FlagW = (Funct[0])? 2'b11:2'b00;
+    			end
+    			4'b000:
+    			begin
+    				ALUControl = 2'b10;
+    				FlagW = (Funct[0])? 2'b10:2'b00;
+    			end
+    			4'b1100:
+    			begin
+    				ALUControl = 2'b11;
+    				FlagW = (Funct[0])? 2'b10:2'b00;
+    			end
+    		endcase
+    	end
+    	else
+    	begin
+    		ALUControl = 2'b00;
+    		FlagW = 2'b00;
+    	end
+    end
 endmodule
 
 
