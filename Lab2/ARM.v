@@ -119,9 +119,31 @@ module ARM(
     
     // datapath connections here
     assign WE_PC = 1 ; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
-
-
     
+    // increments PC
+    assign PC_IN = PCPlus4 ; // maybe it's the PC' in #38 slide?
+    assign PCPlus4 = PC + 4 ;
+    assign PCPlus8 = PC + 8 ;
+
+    // inputs for RegFile
+    assign WE3 = RegWrite ;
+    assign A1 = RegSrc[0] ? 4'd15 : Instr[19:16] ;
+    assign A2 = RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
+    assign A3 = Instr[15:12] ;
+    assign result = MemtoReg ? 32'd0 : ALUResult ; // TODO: change 0 to ReadData from data memory
+    assign WD3 = result ;
+    assign R15 = PCPlus8 ;
+    
+    // inputs for Extend Module
+    // assign ImmSrc = is the output of CondLogic, so maybe no need to assign?
+    assign InstrImm = Instr[23:0] ;
+
+    // inputs for Decoder
+    assign Rd = Instr[15:12] ;
+    assign Funct = Instr[25:20] ;
+    assign Op = Instr[27:26] ;
+    assign Cond = Instr[31:28] ;
+
     // Instantiate RegFile
     RegFile RegFile1( 
                     CLK,
@@ -135,7 +157,7 @@ module ARM(
                     RD2     
                 );
                 
-     // Instantiate Extend Module
+    // Instantiate Extend Module
     Extend Extend1(
                     ImmSrc,
                     InstrImm,
