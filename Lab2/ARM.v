@@ -121,7 +121,7 @@ module ARM(
     assign WE_PC = 1 ; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
     
     // increments PC
-    assign PC_IN = PCPlus4 ; // maybe it's the PC' in #38 slide?
+    assign PC_IN = PCPlus4 ; 
     assign PCPlus4 = PC + 4 ;
     assign PCPlus8 = PC + 8 ;
 
@@ -130,11 +130,11 @@ module ARM(
     assign A1 = RegSrc[0] ? 4'd15 : Instr[19:16] ;
     assign A2 = RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
     assign A3 = Instr[15:12] ;
-    assign result = MemtoReg ? 32'd0 : ALUResult ; // TODO: change 0 to ReadData from data memory
+    assign result = MemtoReg ? 32'd0 : ReadData ; 
     assign WD3 = result ;
     assign R15 = PCPlus8 ;
     
-    // inputs for Extend Module
+    // inputs for Extend
     // assign ImmSrc = is the output of CondLogic, so maybe no need to assign?
     assign InstrImm = Instr[23:0] ;
 
@@ -142,7 +142,28 @@ module ARM(
     assign Rd = Instr[15:12] ;
     assign Funct = Instr[25:20] ;
     assign Op = Instr[27:26] ;
+   
+
+    // inputs for CondLogic
+    assign PCS = (Rd == 15 & RegW) || (Op == 2'b10); // written by instr or branch
+    // assign RegW = ; 
+    // assign NoWrite = ;
+    // assign MemW = ;
+    // assign FlagW = ;
     assign Cond = Instr[31:28] ;
+    // assign ALUFlags = ;
+
+    // inputs for shifter, refer to chapter 4 slides
+    assign Sh = Instr[6:5] ;
+    assign Shamt5 = Instr[11:7] ;
+    assign ShIn = RD2 ;
+
+    // inputs for ALU
+    assign Src_A = RD1 ;
+    assign Src_B = ALUSrc ? ExtImm : ShOut ;
+    // assign ALUControl = ;
+
+    // inputs for ProgramCounter, already declared above
 
     // Instantiate RegFile
     RegFile RegFile1( 
