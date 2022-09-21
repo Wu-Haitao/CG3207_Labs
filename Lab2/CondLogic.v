@@ -46,9 +46,13 @@ module CondLogic(
     output MemWrite
     );
     
-    reg CondEx ;
+    reg CondEx = 0;
     reg N = 0, Z = 0, C = 0, V = 0 ;
     //<extra signals, if any>
+    
+    assign PCSrc = PCS & CondEx;
+    assign RegWrite = PCS & RegWrite;
+    assign PCSrc = MemW & MemWrite;
     
     always@(Cond, N, Z, C, V)
     begin
@@ -74,6 +78,21 @@ module CondLogic(
             4'b1111: CondEx <= 1'bx ;               // unpredictable   
         endcase   
     end
+    
+    
+    always@(posedge CLK)
+    begin
+	if (CondEx) begin
+	    if (FlagW[1]) begin
+		N = ALUFlags[3];
+		Z = ALUFlags[2];
+	    end
+
+	    if (FlagW[0]) begin
+		C = ALUFlags[1];
+		V = ALUFlags[0];
+	    end
+	end
         
 
 endmodule
