@@ -121,7 +121,7 @@ module ARM(
     assign WE_PC = 1 ; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
     
     // increments PC
-    assign PC_IN = PCPlus4 ; 
+    assign PC_IN = PCSrc ? Result : PCPlus4 ; 
     assign PCPlus4 = PC + 4 ;
     assign PCPlus8 = PC + 8 ;
 
@@ -130,9 +130,10 @@ module ARM(
     assign A1 = RegSrc[0] ? 4'd15 : Instr[19:16] ;
     assign A2 = RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
     assign A3 = Instr[15:12] ;
-    assign result = MemtoReg ? 32'd0 : ReadData ; 
+    assign result = MemtoReg ? ReadData : ALUResult ; 
     assign WD3 = result ;
     assign R15 = PCPlus8 ;
+    assign WriteData = RD2;
     
     // inputs for Extend
     // assign ImmSrc = is the output of CondLogic, so maybe no need to assign?
@@ -145,7 +146,7 @@ module ARM(
    
 
     // inputs for CondLogic
-    assign PCS = (Rd == 15 & RegW) || (Op == 2'b10); // written by instr or branch
+    // assign PCS = (Rd == 15 & RegW) || (Op == 2'b10); // written by instr or branch
     // assign RegW = ; 
     // assign NoWrite = ;
     // assign MemW = ;
