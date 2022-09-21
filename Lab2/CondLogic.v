@@ -51,8 +51,8 @@ module CondLogic(
     //<extra signals, if any>
     
     assign PCSrc = PCS & CondEx;
-    assign RegWrite = PCS & RegWrite;
-    assign MemWrite = (MemW & MemWrite) & (~NoWrite);
+    assign RegWrite = RegW & CondEx;
+    assign MemWrite = (MemW & CondEx) & (~NoWrite);
     
     always@(Cond, N, Z, C, V)
     begin
