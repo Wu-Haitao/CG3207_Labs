@@ -52,7 +52,7 @@ module CondLogic(
     
     assign PCSrc = PCS & CondEx;
     assign RegWrite = PCS & RegWrite;
-    assign PCSrc = MemW & MemWrite;
+    assign MemWrite = (MemW & MemWrite) & (~NoWrite);
     
     always@(Cond, N, Z, C, V)
     begin
