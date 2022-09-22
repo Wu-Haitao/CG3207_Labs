@@ -93,19 +93,6 @@ module CondLogic(
 		V <= ALUFlags[0];
 	    end
 	end
-        
+    end
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
