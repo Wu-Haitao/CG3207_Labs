@@ -123,15 +123,15 @@ module ARM(
     // increments PC
     assign PC_IN = PCSrc ? Result : PCPlus4 ; 
     assign PCPlus4 = PC + 4 ;
-    assign PCPlus8 = PC + 8 ;
+    assign PCPlus8 = PCPlus4 + 4 ;
 
     // inputs for RegFile
     assign WE3 = RegWrite ;
-    assign A1 = RegSrc[0] ? 4'd15 : Instr[19:16] ;
+    assign A1 = RegSrc[0] ? 4'b1111 : Instr[19:16] ;
     assign A2 = RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
     assign A3 = Instr[15:12] ;
-    assign result = MemtoReg ? ReadData : ALUResult ; 
-    assign WD3 = result ;
+    assign Result = MemtoReg ? ReadData : ALUResult ; 
+    assign WD3 = Result ;
     assign R15 = PCPlus8 ;
     assign WriteData = RD2;
     
@@ -161,7 +161,7 @@ module ARM(
 
     // inputs for ALU
     assign Src_A = RD1 ;
-    assign Src_B = ALUSrc ? ExtImm : ShOut ;
+    assign Src_B = ALUSrc? ExtImm : ShOut ;
     // assign ALUControl = ;
 
     // inputs for ProgramCounter, already declared above
@@ -244,11 +244,3 @@ module ARM(
                     PC  
                 );                             
 endmodule
-
-
-
-
-
-
-
-
