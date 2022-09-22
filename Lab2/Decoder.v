@@ -56,7 +56,7 @@ module Decoder(
     //PC Logic
     assign PCS = ((Rd == 15) & RegW) | Branch;
     
-    assign {Branch, MemtoReg, MemW, ALUSrc, ImmSrc, RegW, RegSrc, ALUOp} = controls;
+    assign {Branch, MemtoReg, MemW, ALUSrc, ImmSrc[1:0], RegW, RegSrc[1:0], ALUOp[1:0]} = controls;
     assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b101) & Funct[0];   
     
     always @(*)
@@ -72,31 +72,41 @@ module Decoder(
     	if (ALUOp == 2'b01) //DP
     	begin
     		case (Funct[4:1])
-    			4'b0100:
+    			4'b0100: //ADD
     			begin
     				ALUControl = 2'b00;
     				FlagW = (Funct[0])? 2'b11:2'b00;
     			end
-    			4'b0010:
+    			4'b0010: //SUB
     			begin
     				ALUControl = 2'b01;
     				FlagW = (Funct[0])? 2'b11:2'b00;
     			end
-    			4'b0000:
+    			4'b0000: //AND
     			begin
     				ALUControl = 2'b10;
     				FlagW = (Funct[0])? 2'b10:2'b00;
     			end
-    			4'b1100:
+    			4'b1100: //ORR
     			begin
     				ALUControl = 2'b11;
     				FlagW = (Funct[0])? 2'b10:2'b00;
+    			end
+    			4'b1010: //CMP
+    			begin
+    			    ALUControl = 2'b01;
+    			    FlagW = 2'b11;
+    			end
+    			4'b1011: //CMN
+    			begin
+    			    ALUControl = 2'b00;
+    			    FlagW = 2'b11;
     			end
     		endcase
     	end
     	else if (ALUOp == 2'b10) //Mem
     	begin
-    		ALUControl = !Funct[3];
+    		ALUControl = (Funct[3])? 2'b00:2'b01;
     		FlagW = 2'b00;
     	end
     	else if (ALUOp == 2'b00) //B
