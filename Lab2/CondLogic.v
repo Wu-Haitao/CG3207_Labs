@@ -51,8 +51,8 @@ module CondLogic(
     //<extra signals, if any>
     
     assign PCSrc = PCS & CondEx;
-    assign RegWrite = RegW & CondEx;
-    assign MemWrite = (MemW & CondEx) & (~NoWrite);
+    assign RegWrite = RegW & CondEx & (~NoWrite);
+    assign MemWrite = MemW & CondEx;
     
     always@(Cond, N, Z, C, V)
     begin
@@ -84,13 +84,13 @@ module CondLogic(
     begin
 	if (CondEx) begin
 	    if (FlagW[1]) begin
-		N = ALUFlags[3];
-		Z = ALUFlags[2];
+		N <= ALUFlags[3];
+		Z <= ALUFlags[2];
 	    end
 
 	    if (FlagW[0]) begin
-		C = ALUFlags[1];
-		V = ALUFlags[0];
+		C <= ALUFlags[1];
+		V <= ALUFlags[0];
 	    end
 	end
         
