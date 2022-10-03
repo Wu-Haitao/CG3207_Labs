@@ -61,7 +61,7 @@ module MCycle
     reg [2*width-1:0] temp_sum = 0 ;
     reg [2*width-1:0] shifted_op1 = 0 ;
     reg [2*width-1:0] shifted_op2 = 0 ;
-    reg div_signed_flag ;
+    reg [1:0]div_signed_flag ;
     reg carry_bit ;
    
     always@( state, done, Start, RESET ) begin : IDLE_PROCESS  
@@ -111,7 +111,7 @@ module MCycle
         			shifted_op2 = {Operand2, {width{1'b0}}};
         		end
         		else begin //Signed
-        			div_signed_flag = Operand1[width-1] ^~ Operand2[width-1];
+        			div_signed_flag = {Operand1[width-1], Operand2[width-1]};
         			shifted_op1 = (Operand1[width-1])? {{width{1'b0}}, ~(Operand1-1)}:{{width{1'b0}}, Operand1};
         			shifted_op2 = (Operand2[width-1])? {{width{1'b0}}, ~(Operand2-1)}:{{width{1'b0}}, Operand2};
         		end
@@ -158,10 +158,17 @@ module MCycle
         	count = count + 1;
         end ;
         
-        
-        Result2 <= temp_sum[2*width-1 : width] ;
-        Result1 <= temp_sum[width-1 : 0] ;
-        
+        //Result1 is LSW of Product / Quotient
+        //Result2 is MSW of Product / Remainder
+        if( ~MCycleOp[1] | (MCycleOp[1] & MCycleOp[0])) //Multiply or unsigned div
+        begin
+        	Result2 <= temp_sum[2*width-1 : width] ;
+        	Result1 <= temp_sum[width-1 : 0] ;
+        end
+        else begin //Signed div, might need to negate quotient or remainder
+        	Result2 <= (div_signed_flag[1])? ~temp_sum[2*width-1 : width]+1:temp_sum[2*width-1 : width];
+        	Result1 <= (div_signed_flag[0] ^ div_signed_flag[1])? ~temp_sum[width-1 : 0]+1:temp_sum[width-1 : 0] ;
+        end
     end
    
 endmodule
