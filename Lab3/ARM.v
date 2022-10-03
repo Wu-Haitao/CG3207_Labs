@@ -116,6 +116,15 @@ module ARM(
     wire [31:0] PCPlus4 ;
     wire [31:0] PCPlus8 ;
     wire [31:0] Result ;
+
+    // MCycle signals
+    wire Start;
+    wire [1:0] MCycleOp;
+    wire [31:0] Operand1;
+    wire [31:0] Operand2;
+    reg [31:0] Result1;
+    reg [31:0] Result2;
+    reg Busy;
     
     // datapath connections here
     assign WE_PC = 1 ; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
@@ -234,7 +243,22 @@ module ARM(
                     ALUResult,
                     ALUFlags
                 );                
-    
+                
+    // MCycle for multiplication and division
+    MCycle MCycle1(
+                    CLK,
+                    RESET,
+                    Start,
+                    MCycleOp,
+                    Operand1,
+                    Operand2,
+                    Result1,
+                    Result2,
+                    Busy
+                );          
+
+    WE_PC = ~Busy;
+
     // Instantiate ProgramCounter    
     ProgramCounter ProgramCounter1(
                     CLK,
@@ -242,5 +266,6 @@ module ARM(
                     WE_PC,    
                     PC_IN,
                     PC  
-                );                             
+                );     
+             
 endmodule
