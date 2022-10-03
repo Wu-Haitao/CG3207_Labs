@@ -102,6 +102,49 @@ module test_MCycle(
         wait(Busy) ; 
         wait(~Busy) ; 
         Start = 1'b0 ;
+        
+        
+        MCycleOp = 2'b11 ;
+        Operand1 = 4'b0111 ;
+        Operand2 = 4'b0010 ;
+        Start = 1'b1 ; // Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.    
+
+        wait(Busy) ; // suspend initial block till condition becomes true  ;
+        wait(~Busy) ;
+//        #10 ;
+//        Start = 1'b0 ;
+//        #10 ;
+
+        MCycleOp = 2'b11 ;
+        Operand1 = 4'b1000 ;
+        Operand2 = 4'b0010 ;
+        Start = 1'b1 ; // Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.    
+
+        wait(Busy) ; // suspend initial block till condition becomes true  ;
+        wait(~Busy) ;
+//        #10 ;
+//        Start = 1'b0 ;
+//        #10 ;
+        MCycleOp = 2'b11 ;
+        Operand1 = 4'b0110 ;
+        Operand2 = 4'b0011 ;
+        Start = 1'b1 ; // Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.    
+
+        wait(Busy) ; // suspend initial block till condition becomes true  ;
+        wait(~Busy) ;
+//        #10 ;
+//        Start = 1'b0 ;
+//        #10 ;
+        MCycleOp = 2'b11 ;
+        Operand1 = 4'b1111 ;
+        Operand2 = 4'b0100 ;
+        Start = 1'b1 ; // Start is asserted continously(Operations are performed back to back). To try a non-continous Start, you can uncomment the commented lines.    
+
+        wait(Busy) ; // suspend initial block till condition becomes true  ;
+        wait(~Busy) ;
+//        #10 ;
+//        Start = 1'b0 ;
+//        #10 ;
     end
      
     // GENERATE CLOCK       
@@ -111,7 +154,6 @@ module test_MCycle(
     end
     
 endmodule
-
 
 
 
