@@ -60,7 +60,9 @@ module MCycle
     reg [7:0] count = 0 ; // assuming no computation takes more than 256 cycles.
     reg [2*width-1:0] temp_sum = 0 ;
     reg [2*width-1:0] shifted_op1 = 0 ;
-    reg [2*width-1:0] shifted_op2 = 0 ;     
+    reg [2*width-1:0] shifted_op2 = 0 ;
+    reg div_signed_flag ;
+    reg carry_bit ;
    
     always@( state, done, Start, RESET ) begin : IDLE_PROCESS  
 		// Note : This block uses non-blocking assignments to get around an unpredictable Verilog simulation behaviour.
@@ -97,8 +99,23 @@ module MCycle
         if( RESET | (n_state == COMPUTING & state == IDLE) ) begin // 2nd condition is true during the very 1st clock cycle of the multiplication
             count = 0 ;
             temp_sum = 0 ;
-            shifted_op1 = { {width{~MCycleOp[0] & Operand1[width-1]}}, Operand1 } ; // sign extend the operands  
-            shifted_op2 = { {width{~MCycleOp[0] & Operand2[width-1]}}, Operand2 } ; 
+            if ( ~MCycleOp[1]) // Mul
+            begin
+	            shifted_op1 = { {width{~MCycleOp[0] & Operand1[width-1]}}, Operand1 } ; // sign extend the operands  
+            	shifted_op2 = { {width{~MCycleOp[0] & Operand2[width-1]}}, Operand2 } ; 
+        	end
+        	else begin //Div
+        		if ( MCycleOp[0] ) //Unsigned
+        		begin
+        			shifted_op1 = {{width{1'b0}}, Operand1};
+        			shifted_op2 = {Operand2, {width{1'b0}}};
+        		end
+        		else begin //Signed
+        			div_signed_flag = Operand1[width-1] ^~ Operand2[width-1];
+        			shifted_op1 = (Operand1[width-1])? {{width{1'b0}}, ~(Operand1-1)}:{{width{1'b0}}, Operand1};
+        			shifted_op2 = (Operand2[width-1])? {{width{1'b0}}, ~(Operand2-1)}:{{width{1'b0}}, Operand2};
+        		end
+        	end
         end ;
         done <= 1'b0 ;   
         
@@ -119,16 +136,35 @@ module MCycle
         else begin // Divide
         	//if(~MCycleOp[0]), returns signed(Operand1)/signed(Operand2)
         	//if(MCycleOp[0]), returns unsigned(Operand1)/unsigned(Operand2), takes 'width+1' cycles to execute
-           
+        	
+        	{carry_bit, shifted_op1} = {1'b0, shifted_op1} - {1'b0, shifted_op2};
+        	
+        	if (carry_bit) //Rem < 0
+        	begin
+        		shifted_op1 = shifted_op1 + shifted_op2;
+        		temp_sum = temp_sum << 1;
+        		temp_sum[0] = 0;
+        	end
+        	else begin //Rem >= 0
+        		temp_sum = temp_sum << 1;
+        		temp_sum[2*width-1:width] = shifted_op1;
+        		temp_sum[0] = 1;
+        	end
+        	
+        	shifted_op2 = shifted_op2 >> 1;
+        	
+        	if (count == width) done <= 1'b1;
+        	
+        	count = count + 1;
         end ;
+        
         
         Result2 <= temp_sum[2*width-1 : width] ;
         Result1 <= temp_sum[width-1 : 0] ;
-             
+        
     end
    
 endmodule
-
 
 
 
