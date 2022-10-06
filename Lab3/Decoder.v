@@ -92,14 +92,14 @@ module Decoder(
 					begin
 						ALUControl = 2'b00;
 						FlagW = 2'b00;
-						MCycle = 2'b01;
+						MCycleOp = 2'b01;
 						start = 1;
 					end
 					else if (Funct[0] == 1 & Funct[5] == 0) //DIV = MLA
 					begin
 						ALUControl = 2'b00;
 						FlagW = 2'b00;
-						MCycle = 2'b11;
+						MCycleOp = 2'b11;
 						start = 1;
 					end
 					else
