@@ -86,11 +86,28 @@ module Decoder(
     				FlagW = (Funct[0])? 2'b11:2'b00;
 					start = 0;
     			end
-    			4'b0000: //AND
+    			4'b0000: 
     			begin
-    				ALUControl = 2'b10;
-    				FlagW = (Funct[0])? 2'b10:2'b00;
-					start = 0;
+					if (Funct[0] == 0 & Funct[5] == 0) //MUL
+					begin
+						ALUControl = 2'b00;
+						FlagW = 2'b00;
+						MCycle = 2'b01;
+						start = 1;
+					end
+					else if (Funct[0] == 1 & Funct[5] == 0) //DIV = MLA
+					begin
+						ALUControl = 2'b00;
+						FlagW = 2'b00;
+						MCycle = 2'b11;
+						start = 1;
+					end
+					else
+					begin //AND
+						ALUControl = 2'b10;
+						FlagW = (Funct[0])? 2'b10:2'b00;
+						start = 0;
+					end
     			end
     			4'b1100: //ORR
     			begin
@@ -110,22 +127,6 @@ module Decoder(
     			    FlagW = 2'b11;
 					start = 0;
     			end
-				4'b0000: //MUL
-				begin
-					ALUControl = 2'00;
-					FlagW = 2'00;
-					MCycle = 2'01;
-					start = 1;
-				end
-				4'b0001: //DIV
-				begin
-					ALUControl = 2'00;
-					FlagW = 2'00;
-					MCycle = 2'11;
-					start = 1;
-
-
-
     		endcase
     	end
     	else if (ALUOp == 2'b10) //Mem
