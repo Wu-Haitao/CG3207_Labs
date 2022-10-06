@@ -44,7 +44,9 @@ module Decoder(
     output [1:0] RegSrc,
     output NoWrite,
     output reg [1:0] ALUControl,
-    output reg [1:0] FlagW
+    output reg [1:0] FlagW,
+	output reg start,
+	output reg MCycleOp
     );
     
     wire [1:0] ALUOp ;
@@ -76,32 +78,54 @@ module Decoder(
     			begin
     				ALUControl = 2'b00;
     				FlagW = (Funct[0])? 2'b11:2'b00;
+					start = 0;
     			end
     			4'b0010: //SUB
     			begin
     				ALUControl = 2'b01;
     				FlagW = (Funct[0])? 2'b11:2'b00;
+					start = 0;
     			end
     			4'b0000: //AND
     			begin
     				ALUControl = 2'b10;
     				FlagW = (Funct[0])? 2'b10:2'b00;
+					start = 0;
     			end
     			4'b1100: //ORR
     			begin
     				ALUControl = 2'b11;
     				FlagW = (Funct[0])? 2'b10:2'b00;
+					start = 0;
     			end
     			4'b1010: //CMP
     			begin
     			    ALUControl = 2'b01;
     			    FlagW = 2'b11;
+					start = 0;
     			end
     			4'b1011: //CMN
     			begin
     			    ALUControl = 2'b00;
     			    FlagW = 2'b11;
+					start = 0;
     			end
+				4'b0000: //MUL
+				begin
+					ALUControl = 2'00;
+					FlagW = 2'00;
+					MCycle = 2'01;
+					start = 1;
+				end
+				4'b0001: //DIV
+				begin
+					ALUControl = 2'00;
+					FlagW = 2'00;
+					MCycle = 2'11;
+					start = 1;
+
+
+
     		endcase
     	end
     	else if (ALUOp == 2'b10) //Mem

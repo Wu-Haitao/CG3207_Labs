@@ -102,7 +102,7 @@ module ARM(
     wire [31:0] Src_A ;
     wire [31:0] Src_B ;
     wire [1:0] ALUControl ;
-    //wire [31:0] ALUResult ;
+    wire [31:0] ALUResult ;
     wire [3:0] ALUFlags ;
     
     // ProgramCounter signals
@@ -127,7 +127,7 @@ module ARM(
     reg Busy;
     
     // datapath connections here
-    assign WE_PC = 1 ; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
+    assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
     
     // increments PC
     assign PC_IN = PCSrc ? Result : PCPlus4 ; 
@@ -171,7 +171,13 @@ module ARM(
     // inputs for ALU
     assign Src_A = RD1 ;
     assign Src_B = ALUSrc? ExtImm : ShOut ;
-    // assign ALUControl = ;
+
+    // input for MCycle
+    assign Operand1 = RD1 ;
+    assign Operand2 = ALUSrc? ExtImm : ShOut ;
+
+    // Select result from two ALUS
+    assign ALUResult = start ? Result1 : ALUResult;
 
     // inputs for ProgramCounter, already declared above
 
@@ -257,7 +263,6 @@ module ARM(
                     Busy
                 );          
 
-    WE_PC = ~Busy;
 
     // Instantiate ProgramCounter    
     ProgramCounter ProgramCounter1(
