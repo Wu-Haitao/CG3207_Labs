@@ -112,8 +112,8 @@ module MCycle
         		end
         		else begin //Signed
         			div_signed_flag = {Operand1[width-1], Operand2[width-1]};
-        			shifted_op1 = (Operand1[width-1])? {{width{1'b0}}, ~(Operand1-1)}:{{width{1'b0}}, Operand1};
-        			shifted_op2 = (Operand2[width-1])? {{width{1'b0}}, ~(Operand2-1)}:{{width{1'b0}}, Operand2};
+        			shifted_op1 = (Operand1[width-1])? {{width{1'b0}}, ~(Operand1-1'b1)}:{{width{1'b0}}, Operand1};
+        			shifted_op2 = (Operand2[width-1])? {~(Operand2-1'b1), {width{1'b0}}}:{Operand2, {width{1'b0}}};
         		end
         	end
         end ;
@@ -147,9 +147,10 @@ module MCycle
         	end
         	else begin //Rem >= 0
         		temp_sum = temp_sum << 1;
-        		temp_sum[2*width-1:width] = shifted_op1;
         		temp_sum[0] = 1;
         	end
+        	
+        	temp_sum[2*width-1:width] = shifted_op1;
         	
         	shifted_op2 = shifted_op2 >> 1;
         	
@@ -166,13 +167,13 @@ module MCycle
         	Result1 <= temp_sum[width-1 : 0] ;
         end
         else begin //Signed div, might need to negate quotient or remainder
-        	Result2 <= (div_signed_flag[1])? ~temp_sum[2*width-1 : width]+1:temp_sum[2*width-1 : width];
-        	Result1 <= (div_signed_flag[0] ^ div_signed_flag[1])? ~temp_sum[width-1 : 0]+1:temp_sum[width-1 : 0] ;
+        	Result2 <= (div_signed_flag[1])? (~temp_sum[2*width-1 : width])+1'b1:temp_sum[2*width-1 : width];
+        	Result1 <= (div_signed_flag[0] ^ div_signed_flag[1])? (~temp_sum[width-1 : 0])+1'b1:temp_sum[width-1 : 0] ;
         end
+        
     end
    
 endmodule
-
 
 
 
