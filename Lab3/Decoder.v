@@ -118,6 +118,7 @@ module Decoder(
 					ALUControl = 2'00;
 					FlagW = 2'00;
 					MCycle = 2'11;
+				end
 
 
 
