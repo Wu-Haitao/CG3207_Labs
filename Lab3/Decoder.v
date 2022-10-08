@@ -61,7 +61,7 @@ module Decoder(
     assign PCS = ((Rd == 15) & RegW) | Branch;
     
     assign {Branch, MemtoReg, MemW, ALUSrc, ImmSrc[1:0], RegW, RegSrc[1:0], ALUOp[1:0]} = controls;
-    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b1000) & Funct[0];  
+    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b101) & Funct[0];  
 
 	// Assign start = 1 when doing MUL and DIV, else start = 0
 	// start = isDP & (instr[25:21] == 0000X) & (MBits == 1001)
