@@ -196,7 +196,10 @@ module ARM(
                     RegSrc,
                     NoWrite,
                     ALUControl,
-                    FlagW
+                    FlagW,
+                    MBits,
+                    Start,
+                    MCycleOp
                 );
                                 
     // Instantiate CondLogic
