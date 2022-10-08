@@ -102,7 +102,7 @@ module ARM(
     wire [31:0] Src_A ;
     wire [31:0] Src_B ;
     wire [1:0] ALUControl ;
-    wire [31:0] ALUResult ;
+    //wire [31:0] ALUResult ;
     wire [3:0] ALUFlags ;
     
     // ProgramCounter signals
@@ -122,9 +122,9 @@ module ARM(
     wire [1:0] MCycleOp;
     wire [31:0] Operand1;
     wire [31:0] Operand2;
-    reg [31:0] Result1;
-    reg [31:0] Result2;
-    reg Busy;
+    wire [31:0] Result1; // Note: actually all module outputs need to be wires
+    wire [31:0] Result2; // even if they are reg in module declaration. Otherwise
+    wire Busy; // the error "concurrent assignment to a non-net 'Result1' is not permitted" will occur.
     
     // datapath connections here
     assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
@@ -177,7 +177,7 @@ module ARM(
     assign Operand2 = ALUSrc? ExtImm : ShOut ;
 
     // Select result from two ALUS
-    assign ALUResult = start ? Result1 : ALUResult;
+    assign ALUResult = Start ? Result1 : ALUResult;
 
     // inputs for ProgramCounter, already declared above
 
@@ -251,7 +251,7 @@ module ARM(
                 );                
                 
     // MCycle for multiplication and division
-    MCycle MCycle1(
+    MCycle #(.width(32)) MCycle1 (
                     CLK,
                     RESET,
                     Start,

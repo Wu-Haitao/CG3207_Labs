@@ -89,7 +89,7 @@ module Decoder(
     			end
     			4'b0000: //AND
     			begin
-    				ALUControl = 2'b10;
+            ALUControl = 2'b10;
     				FlagW = (Funct[0])? 2'b10:2'b00;
     			end
     			4'b1100: //ORR
@@ -119,9 +119,6 @@ module Decoder(
 					FlagW = 2'00;
 					MCycle = 2'11;
 				end
-
-
-
     		endcase
     	end
     	else if (ALUOp == 2'b10) //Mem
