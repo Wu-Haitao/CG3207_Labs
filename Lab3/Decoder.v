@@ -48,7 +48,7 @@ module Decoder(
     //For MUL and DIV
     input [3:0] MBits,
     output Start,
-	output reg MCycleOp
+	output reg [1:0] MCycleOp
     );
     
     wire [1:0] ALUOp ;
@@ -61,7 +61,7 @@ module Decoder(
     assign PCS = ((Rd == 15) & RegW) | Branch;
     
     assign {Branch, MemtoReg, MemW, ALUSrc, ImmSrc[1:0], RegW, RegSrc[1:0], ALUOp[1:0]} = controls;
-    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b1000) & Funct[0];  
+    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b101) & Funct[0];  
 
 	// Assign start = 1 when doing MUL and DIV, else start = 0
 	// start = isDP & (instr[25:21] == 0000X) & (MBits == 1001)
@@ -132,7 +132,7 @@ module Decoder(
 	    	ALUControl = 2'bXX; //Don't care
 	    	FlagW = (Funct[0])? 2'b10:2'b00; //Can set Z and N but not required
 	    	//Interpret MLA as DIV
-	    	MCycleOp = (Funct[1])? 2'b11:2'b01; //Unsigned?
+	    	MCycleOp = (Funct[1])? 2'b11:2'b01; //Unsigned
 	    end
     end
 endmodule

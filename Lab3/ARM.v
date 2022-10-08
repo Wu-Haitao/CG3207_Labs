@@ -155,7 +155,7 @@ module ARM(
 
     // input for MCycle
     assign Operand1 = RD1 ;
-    assign Operand2 = ALUSrc? ExtImm : ShOut ;
+    assign Operand2 = RD2 ;
 
     // Select result from two ALUS
     assign ALUResult = Start ? Result1 : ALUResult_0;
@@ -196,7 +196,10 @@ module ARM(
                     RegSrc,
                     NoWrite,
                     ALUControl,
-                    FlagW
+                    FlagW,
+                    MBits,
+                    Start,
+                    MCycleOp
                 );
                                 
     // Instantiate CondLogic
