@@ -40,12 +40,14 @@ module Decoder(
     output MemW,
     output MemtoReg,
     output ALUSrc,
-	output start,
     output [1:0] ImmSrc,
     output [1:0] RegSrc,
     output NoWrite,
     output reg [1:0] ALUControl,
     output reg [1:0] FlagW,
+    //For MUL and DIV
+    input [3:0] MBits,
+    output Start,
 	output reg MCycleOp
     );
     
@@ -59,77 +61,78 @@ module Decoder(
     assign PCS = ((Rd == 15) & RegW) | Branch;
     
     assign {Branch, MemtoReg, MemW, ALUSrc, ImmSrc[1:0], RegW, RegSrc[1:0], ALUOp[1:0]} = controls;
-    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b101) & Funct[0];  
+    assign NoWrite = (Op==2'b00) & (Funct[4:2] == 3'b1000) & Funct[0];  
 
 	// Assign start = 1 when doing MUL and DIV, else start = 0
-	assign start = ((ALUOp == 2'b01) & ((Funct[4:1] == 4'b0000) | (Funct[4:1] == 4'b0001)))? 1 : 0;
+	// start = isDP & (instr[25:21] == 0000X) & (MBits == 1001)
+	assign Start = (Op == 2'b00) & (Funct[5:2] == 4'b0000) & (MBits == 4'b1001);
+	
     
     always @(*)
     begin
-        //Controls
-        case (Op)
-            2'b00: controls = (Funct[5])? 11'b0001001X001 : 11'b0000XX10001; //DP
-            2'b01: controls = (Funct[0])? 11'b0101011X010 : 11'b0X110101010; //Mem
-            2'b10: controls = 11'b1001100X100; //B
-        endcase;
-    
-        //ALU Decoder
-    	if (ALUOp == 2'b01) //DP
+    	if (~Start) //Original
     	begin
-    		case (Funct[4:1])
-    			4'b0100: //ADD
-    			begin
-    				ALUControl = 2'b00;
-    				FlagW = (Funct[0])? 2'b11:2'b00;
-    			end
-    			4'b0010: //SUB
-    			begin
-    				ALUControl = 2'b01;
-    				FlagW = (Funct[0])? 2'b11:2'b00;
-    			end
-    			4'b0000: //AND
-    			begin
-            ALUControl = 2'b10;
-    				FlagW = (Funct[0])? 2'b10:2'b00;
-    			end
-    			4'b1100: //ORR
-    			begin
-    				ALUControl = 2'b11;
-    				FlagW = (Funct[0])? 2'b10:2'b00;
-    			end
-    			4'b1010: //CMP
-    			begin
-    			    ALUControl = 2'b01;
-    			    FlagW = 2'b11;
-    			end
-    			4'b1011: //CMN
-    			begin
-    			    ALUControl = 2'b00;
-    			    FlagW = 2'b11;
-    			end
-				4'b0000: //MUL
-				begin
-					ALUControl = 2'00;
-					FlagW = 2'00;
-					MCycle = 2'01;
-				end
-				4'b0001: //DIV
-				begin
-					ALUControl = 2'00;
-					FlagW = 2'00;
-					MCycle = 2'11;
-				end
-    		endcase
-    	end
-    	else if (ALUOp == 2'b10) //Mem
-    	begin
-    		ALUControl = (Funct[3])? 2'b00:2'b01;
-    		FlagW = 2'b00;
-    	end
-    	else if (ALUOp == 2'b00) //B
-    	begin
-    		ALUControl = 2'b00;
-    		FlagW = 2'b00;
-    	end
+	        //Controls
+	        case (Op)
+	            2'b00: controls = (Funct[5])? 11'b0001001X001 : 11'b0000XX10001; //DP
+	            2'b01: controls = (Funct[0])? 11'b0101011X010 : 11'b0X110101010; //Mem
+	            2'b10: controls = 11'b1001100X100; //B
+	        endcase;
+	    
+	        //ALU Decoder
+	    	if (ALUOp == 2'b01) //DP
+	    	begin
+	    		case (Funct[4:1])
+	    			4'b0100: //ADD
+	    			begin
+	    				ALUControl = 2'b00;
+	    				FlagW = (Funct[0])? 2'b11:2'b00;
+	    			end
+	    			4'b0010: //SUB
+	    			begin
+	    				ALUControl = 2'b01;
+	    				FlagW = (Funct[0])? 2'b11:2'b00;
+	    			end
+	    			4'b0000: //AND
+	    			begin
+	    				ALUControl = 2'b10;
+	    				FlagW = (Funct[0])? 2'b10:2'b00;
+	    			end
+	    			4'b1100: //ORR
+	    			begin
+	    				ALUControl = 2'b11;
+	    				FlagW = (Funct[0])? 2'b10:2'b00;
+	    			end
+	    			4'b1010: //CMP
+	    			begin
+	    			    ALUControl = 2'b01;
+	    			    FlagW = 2'b11;
+	    			end
+	    			4'b1011: //CMN
+	    			begin
+	    			    ALUControl = 2'b00;
+	    			    FlagW = 2'b11;
+	    			end
+	    		endcase
+	    	end
+	    	else if (ALUOp == 2'b10) //Mem
+	    	begin
+	    		ALUControl = (Funct[3])? 2'b00:2'b01;
+	    		FlagW = 2'b00;
+	    	end
+	    	else if (ALUOp == 2'b00) //B
+	    	begin
+	    		ALUControl = 2'b00;
+	    		FlagW = 2'b00;
+	    	end
+	    end
+	    else //MUL and DIV
+	    begin
+	    	controls = 11'b0000XX100XX; //ALUOp doesn't matter here
+	    	ALUControl = 2'bXX; //Don't care
+	    	FlagW = (Funct[0])? 2'b10:2'b00; //Can set Z and N but not required
+	    	//Interpret MLA as DIV
+	    	MCycleOp = (Funct[1])? 2'b11:2'b01; //Unsigned?
+	    end
     end
 endmodule

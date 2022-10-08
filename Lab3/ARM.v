@@ -49,7 +49,6 @@ module ARM(
     );
     
     // RegFile signals
-    //wire CLK ;
     wire WE3 ;
     wire [3:0] A1 ;
     wire [3:0] A2 ;
@@ -68,29 +67,20 @@ module ARM(
     wire [3:0] Rd ;
     wire [1:0] Op ;
     wire [5:0] Funct ;
-    //wire PCS ;
-    //wire RegW ;
-    //wire MemW ;
     wire MemtoReg ;
     wire ALUSrc ;
-    //wire [1:0] ImmSrc ;
     wire [1:0] RegSrc ;
-    //wire NoWrite ;
-    //wire [1:0] ALUControl ;
-    //wire [1:0] FlagW ;
+    wire [3:0] MBits;
     
     // CondLogic signals
-    //wire CLK ;
     wire PCS ;
     wire RegW ;
     wire NoWrite ;
     wire MemW ;
     wire [1:0] FlagW ;
     wire [3:0] Cond ;
-    //wire [3:0] ALUFlags,
     wire PCSrc ;
     wire RegWrite ; 
-    //wire MemWrite
        
     // Shifter signals
     wire [1:0] Sh ;
@@ -102,15 +92,12 @@ module ARM(
     wire [31:0] Src_A ;
     wire [31:0] Src_B ;
     wire [1:0] ALUControl ;
-    //wire [31:0] ALUResult ;
     wire [3:0] ALUFlags ;
+    wire [31:0] ALUResult_0;
     
     // ProgramCounter signals
-    //wire CLK ;
-    //wire RESET ;
     wire WE_PC ;    
     wire [31:0] PC_IN ;
-    //wire [31:0] PC ; 
         
     // Other internal signals here
     wire [31:0] PCPlus4 ;
@@ -122,9 +109,9 @@ module ARM(
     wire [1:0] MCycleOp;
     wire [31:0] Operand1;
     wire [31:0] Operand2;
-    wire [31:0] Result1; // Note: actually all module outputs need to be wires
-    wire [31:0] Result2; // even if they are reg in module declaration. Otherwise
-    wire Busy; // the error "concurrent assignment to a non-net 'Result1' is not permitted" will occur.
+    wire [31:0] Result1;
+    wire [31:0] Result2;
+    wire Busy;
     
     // datapath connections here
     assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
@@ -136,32 +123,26 @@ module ARM(
 
     // inputs for RegFile
     assign WE3 = RegWrite ;
-    assign A1 = RegSrc[0] ? 4'b1111 : Instr[19:16] ;
-    assign A2 = RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
-    assign A3 = Instr[15:12] ;
+    assign A1 = Start? Instr[3:0] :		(RegSrc[0] ? 4'b1111 : Instr[19:16]) ;
+    assign A2 = Start? Instr[11:8] :	RegSrc[1] ? Instr[15:12] : Instr[3:0] ;
+    assign A3 = Start? Instr[19:16] :	Instr[15:12] ;
     assign Result = MemtoReg ? ReadData : ALUResult ; 
     assign WD3 = Result ;
     assign R15 = PCPlus8 ;
     assign WriteData = RD2;
     
     // inputs for Extend
-    // assign ImmSrc = is the output of CondLogic, so maybe no need to assign?
     assign InstrImm = Instr[23:0] ;
 
     // inputs for Decoder
     assign Rd = Instr[15:12] ;
     assign Funct = Instr[25:20] ;
     assign Op = Instr[27:26] ;
+    assign MBits = Instr[7:4];
    
 
     // inputs for CondLogic
-    // assign PCS = (Rd == 15 & RegW) || (Op == 2'b10); // written by instr or branch
-    // assign RegW = ; 
-    // assign NoWrite = ;
-    // assign MemW = ;
-    // assign FlagW = ;
     assign Cond = Instr[31:28] ;
-    // assign ALUFlags = ;
 
     // inputs for shifter, refer to chapter 4 slides
     assign Sh = Instr[6:5] ;
@@ -177,7 +158,7 @@ module ARM(
     assign Operand2 = ALUSrc? ExtImm : ShOut ;
 
     // Select result from two ALUS
-    assign ALUResult = Start ? Result1 : ALUResult;
+    assign ALUResult = Start ? Result1 : ALUResult_0;
 
     // inputs for ProgramCounter, already declared above
 
@@ -246,7 +227,7 @@ module ARM(
                     Src_A,
                     Src_B,
                     ALUControl,
-                    ALUResult,
+                    ALUResult_0,
                     ALUFlags
                 );                
                 
