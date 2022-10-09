@@ -47,75 +47,21 @@ WAIT_RESET_2
 CAL
 		ADD R4, R5, #5
 		STR R4, [R10, #-4]
-CAL_ADD
-		ADD R3, R1, R2
-		STR R3, [R9] ; Display ADD result
+CAL_MUL
+		MUL R3, R1, R2
+		STR R3, [R9] ; Display MUL result
 		LDR R4, [R10]
 		CMP R4, #3
-		BNE CAL_ADD
+		BNE CAL_MUL
 
 		ADD R4, R5, #6
 		STR R4, [R10, #-4]
-CAL_SUB
-		SUB R3, R1, R2
-		STR R3, [R9] ; Display SUB result
+CAL_DIV
+		MLA R3, R1, R2, R5
+		STR R3, [R9] ; Display DIV result
 		LDR R4, [R10]
 		CMP R4, #0
-		BNE CAL_SUB
-		
-		ADD R4, R5, #7
-		STR R4, [R10, #-4]
-CAL_AND
-		AND R3, R1, R2
-		STR R3, [R9] ; Display AND result
-		LDR R4, [R10]
-		CMP R4, #3
-		BNE CAL_AND
-		
-		ADD R4, R5, #8
-		STR R4, [R10, #-4]
-CAL_ORR
-		ORR R3, R1, R2
-		STR R3, [R9] ; Display ORR result
-		LDR R4, [R10]
-		CMP R4, #0
-		BNE CAL_ORR
-		
-		ADD R4, R5, #9
-		STR R4, [R10, #-4]
-CAL_ADD_IMM
-		ADD R3, R1, #2 ; R3 = R1 + 2
-		STR R3, [R9] ; Display ADD result
-		LDR R4, [R10]
-		CMP R4, #3
-		BNE CAL_ADD_IMM
-
-		ADD R4, R5, #10
-		STR R4, [R10, #-4]
-CAL_SUB_SHIFT
-		SUB R3, R1, R2, LSR #2 ; R3 = R1 - (R2 >> 2)
-		STR R3, [R9] ; Display SUB result
-		LDR R4, [R10]
-		CMP R4, #0
-		BNE CAL_SUB_SHIFT
-		
-		ADD R4, R5, #11
-		STR R4, [R10, #-4]
-CAL_AND_IMM
-		AND R3, R1, #2 ; R3 = R1 & 2
-		STR R3, [R9] ; Display AND result
-		LDR R4, [R10]
-		CMP R4, #3
-		BNE CAL_AND_IMM
-		
-		ADD R4, R5, #12
-		STR R4, [R10, #-4]
-CAL_ORR_SHIFT
-		ORR R3, R1, R2, LSL #2 ; R3 = R1 | (R2 << 2)
-		STR R3, [R9] ; Display ORR result
-		LDR R4, [R10]
-		CMP R4, #0
-		BNE CAL_ORR_SHIFT
+		BNE CAL_DIV
 		B CAL
 		
 halt	
@@ -173,4 +119,4 @@ variable1
 		DCD 0x00000000		;  // unsigned int variable1;
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	
 
-		END	
+		END
