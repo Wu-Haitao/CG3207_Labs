@@ -62,7 +62,7 @@ module MCycle
     reg [2*width-1:0] shifted_op1 = 0 ;
     reg [2*width-1:0] shifted_op2 = 0 ;
     reg [1:0]div_signed_flag ;
-    reg carry_bit ;
+    reg c_bit ;
    
     always@( state, done, Start, RESET ) begin : IDLE_PROCESS  
 		// Note : This block uses non-blocking assignments to get around an unpredictable Verilog simulation behaviour.
@@ -99,6 +99,7 @@ module MCycle
         if( RESET | (n_state == COMPUTING & state == IDLE) ) begin // 2nd condition is true during the very 1st clock cycle of the multiplication
             count = 0 ;
             temp_sum = 0 ;
+            c_bit = 0;
             if ( ~MCycleOp[1]) // Mul
             begin
 	            shifted_op1 = { {width{~MCycleOp[0] & Operand1[width-1]}}, Operand1 } ; // sign extend the operands  
@@ -121,25 +122,44 @@ module MCycle
         
         if( ~MCycleOp[1] ) begin // Multiply
             // if( ~MCycleOp[0] ), takes 2*'width' cycles to execute, returns signed(Operand1)*signed(Operand2)
-            // if( MCycleOp[0] ), takes 'width' cycles to execute, returns unsigned(Operand1)*unsigned(Operand2)        
-            if( shifted_op2[0] ) // add only if b0 = 1
-                temp_sum = temp_sum + shifted_op1 ; // partial product for multiplication
-                
-            shifted_op2 = {1'b0, shifted_op2[2*width-1 : 1]} ;
-            shifted_op1 = {shifted_op1[2*width-2 : 0], 1'b0} ;    
-                
-            if( (MCycleOp[0] & count == width-1) | (~MCycleOp[0] & count == 2*width-1) ) // last cycle?
-                done <= 1'b1 ;   
-               
-            count = count + 1;    
+            // if( MCycleOp[0] ), takes 'width' cycles to execute, returns unsigned(Operand1)*unsigned(Operand2)   
+                 
+            //if( shifted_op2[0] ) // add only if b0 = 1
+                //temp_sum = temp_sum + shifted_op1 ; // partial product for multiplication
+                //
+            //shifted_op2 = {1'b0, shifted_op2[2*width-1 : 1]} ;
+            //shifted_op1 = {shifted_op1[2*width-2 : 0], 1'b0} ;    
+                //
+            //if( (MCycleOp[0] & count == width-1) | (~MCycleOp[0] & count == 2*width-1) ) // last cycle?
+                //done <= 1'b1 ;   
+               //
+            //count = count + 1;    
+            
+            //Booth algorithm
+            if (shifted_op2[0] & ~c_bit) //10
+            begin
+            	temp_sum = temp_sum - shifted_op1;
+            end
+            else if (~shifted_op2[0] & c_bit) //01
+            begin
+            	temp_sum = temp_sum + shifted_op1;
+            end
+            c_bit = shifted_op2[0];
+            shifted_op2 = shifted_op2 >>> 1;
+            shifted_op1 = shifted_op1 << 1;
+            
+            if (count == width - 1) done <= 1'b1;
+            
+            count = count + 1;
+            
         end    
         else begin // Divide
         	//if(~MCycleOp[0]), returns signed(Operand1)/signed(Operand2)
         	//if(MCycleOp[0]), returns unsigned(Operand1)/unsigned(Operand2), takes 'width+1' cycles to execute
         	
-        	{carry_bit, shifted_op1} = {1'b0, shifted_op1} - {1'b0, shifted_op2};
+        	{c_bit, shifted_op1} = {1'b0, shifted_op1} - {1'b0, shifted_op2};
         	
-        	if (carry_bit) //Rem < 0
+        	if (c_bit) //Rem < 0
         	begin
         		shifted_op1 = shifted_op1 + shifted_op2;
         		temp_sum = temp_sum << 1;
