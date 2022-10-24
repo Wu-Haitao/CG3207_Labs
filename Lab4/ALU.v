@@ -30,7 +30,7 @@
 module ALU(
     input [31:0] Src_A,
     input [31:0] Src_B,
-    input [1:0] ALUControl,
+    input [3:0] ALUControl,
     output [31:0] ALUResult,
     output [3:0] ALUFlags
     );
@@ -54,13 +54,13 @@ module ALU(
         V <= 0 ;
     
         case(ALUControl)
-            2'b00:  
+            4'b0000:  //ADD
             begin
                 ALUResult_i <= S_wider[31:0] ;
                 V <= ( Src_A[31] ~^ Src_B[31] )  & ( Src_B[31] ^ S_wider[31] );          
             end
             
-            2'b01:  
+            4'b0001:  //SUB
             begin
                 C_0[0] <= 1 ;  
                 Src_B_comp <= {1'b0, ~ Src_B} ;
@@ -68,8 +68,26 @@ module ALU(
                 V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ~^ S_wider[31] );       
             end
             
-            2'b10: ALUResult_i <= Src_A & Src_B ;
-            2'b11: ALUResult_i <= Src_A | Src_B ;               
+            4'b0010: ALUResult_i <= Src_A & Src_B ; //AND
+            4'b0011: ALUResult_i <= Src_A | Src_B ; //ORR
+            4'b0100: ALUResult_i <= Src_A ^ Src_B ; //EOR
+            4'b0101: //RSB
+            begin
+            	C_0[0] <= 1;
+            	Src_A_comp <= {1'b0, ~Src_A};
+            	ALUResult_i <= S_wider[31:0];
+            end
+            4'b0110: //ADC
+            begin
+            end
+            4'b0111: //SBC
+            begin
+            end
+            4'b1000: //RSC
+            begin
+            end
+            4'b1001: ALUResult_i <= Src_B; //MOV
+            4'b1010: ALUResult_i <= ~Src_B; //MVN
         endcase ;
     end
     

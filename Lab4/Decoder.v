@@ -43,7 +43,7 @@ module Decoder(
     output [1:0] ImmSrc,
     output [1:0] RegSrc,
     output NoWrite,
-    output reg [1:0] ALUControl,
+    output reg [3:0] ALUControl,
     output reg [1:0] FlagW,
     //For MUL and DIV
     input [3:0] MBits,
@@ -85,33 +85,59 @@ module Decoder(
 	    		case (Funct[4:1])
 	    			4'b0100: //ADD
 	    			begin
-	    				ALUControl = 2'b00;
+	    				ALUControl = 4'b0000;
 	    				FlagW = (Funct[0])? 2'b11:2'b00;
 	    			end
 	    			4'b0010: //SUB
 	    			begin
-	    				ALUControl = 2'b01;
+	    				ALUControl = 4'b0001;
 	    				FlagW = (Funct[0])? 2'b11:2'b00;
 	    			end
 	    			4'b0000: //AND
 	    			begin
-	    				ALUControl = 2'b10;
+	    				ALUControl = 4'b0010;
 	    				FlagW = (Funct[0])? 2'b10:2'b00;
 	    			end
 	    			4'b1100: //ORR
 	    			begin
-	    				ALUControl = 2'b11;
+	    				ALUControl = 4'b0011;
 	    				FlagW = (Funct[0])? 2'b10:2'b00;
 	    			end
 	    			4'b1010: //CMP
 	    			begin
-	    			    ALUControl = 2'b01;
+	    			    ALUControl = 4'b0001;
 	    			    FlagW = 2'b11;
 	    			end
 	    			4'b1011: //CMN
 	    			begin
-	    			    ALUControl = 2'b00;
+	    			    ALUControl = 4'b0000;
 	    			    FlagW = 2'b11;
+	    			end
+	    			//Lab 4
+	    			4'b0001: //EOR
+	    			begin
+	    				ALUControl = 4'b0100;
+	    				FlagW = (Funct[0])? 2'b10:2'b00;
+	    			end
+	    			4'b1001: //TEQ
+	    			begin
+	    				ALUControl = 4'b0100;
+	    				FlagW = 2'b10;
+	    			end
+	    			4'b1000: //TST
+	    			begin
+	    				ALUControl = 4'b0010;
+	    				FlagW = 2'b10;
+	    			end
+	    			4'b1101: //MOV
+	    			begin
+	    				ALUControl = 4'b1001;
+	    				FlagW = (Funct[0])? 2'b10:2'b00;
+	    			end
+	    			4'b1111: //MVN
+	    			begin
+	    				ALUControl = 4'b1010;
+	    				FlagW = (Funct[0])? 2'b10:2'b00;
 	    			end
 	    		endcase
 	    	end
@@ -129,7 +155,7 @@ module Decoder(
 	    else //MUL and DIV
 	    begin
 	    	controls = 11'b0000XX100XX; //ALUOp doesn't matter here
-	    	ALUControl = 2'bXX; //Don't care
+	    	ALUControl = 4'bXXXX; //Don't care
 	    	FlagW = (Funct[0])? 2'b10:2'b00; //Can set Z and N but not required
 	    	//Interpret MLA as DIV
 	    	MCycleOp = (Funct[1])? 2'b11:2'b01; //Unsigned
