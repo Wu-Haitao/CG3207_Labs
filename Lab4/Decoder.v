@@ -149,6 +149,15 @@ module Decoder(
 						ALUControl = 4'b0111;
 						FlagW = (Funct[0])? 2'b11:2'b00;
 					end
+					4'b0111: //RSC
+					begin
+						ALUControl = 4'b1000;
+						FlagW = (Funct[0])? 2'b11:2'b00;
+					end
+					4'b1110: //BIC
+					begin
+						ALUControl = 4'b1011;
+						FlagW = 2'b00
 	    		endcase
 	    	end
 	    	else if (ALUOp == 2'b10) //Mem

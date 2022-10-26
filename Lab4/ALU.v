@@ -92,9 +92,14 @@ module ALU(
             end
             4'b1000: //RSC
             begin
+                C_0[0] <= ~C + 1;
+                Src_A_comp <= {1'b0, ~ Src_A};
+                ALUResult_i <= S_wider[31:0];
+                // Carry?
             end
             4'b1001: ALUResult_i <= Src_B; //MOV
             4'b1010: ALUResult_i <= ~Src_B; //MVN
+            4'b1011: ALUResult_i <= Src_A & (~Src_B); //BIC
         endcase ;
     end
     
