@@ -18,7 +18,6 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-
 ----------------------------------------------------------------------------------
 --	License terms :
 --	You are free to use this code as long as you
@@ -43,7 +42,8 @@ module CondLogic(
     input [3:0] ALUFlags,
     output PCSrc,
     output RegWrite,
-    output MemWrite
+    output MemWrite,
+    output C_flag
     );
     
     reg CondEx = 0;
@@ -53,6 +53,7 @@ module CondLogic(
     assign PCSrc = PCS & CondEx;
     assign RegWrite = RegW & CondEx & (~NoWrite);
     assign MemWrite = MemW & CondEx;
+    assign C_flag = C;
     
     always@(Cond, N, Z, C, V)
     begin
