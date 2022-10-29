@@ -40,7 +40,8 @@ module CondLogic(
     input [1:0] FlagW,
     input [3:0] Cond,
     input [3:0] ALUFlags,
-    output PCSrc,
+    input Interrupt,
+    output [1:0] PCSrc,
     output RegWrite,
     output MemWrite,
     output C_flag
@@ -50,7 +51,7 @@ module CondLogic(
     reg N = 0, Z = 0, C = 0, V = 0 ;
     //<extra signals, if any>
     
-    assign PCSrc = PCS & CondEx;
+    assign PCSrc = Interrupt ? 10 : (PCS & CondEx);
     assign RegWrite = RegW & CondEx & (~NoWrite);
     assign MemWrite = MemW & CondEx;
     assign C_flag = C;
