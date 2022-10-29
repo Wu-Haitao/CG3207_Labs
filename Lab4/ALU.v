@@ -85,14 +85,14 @@ module ALU(
             end
             4'b0111: //SBC
             begin
-                C_0[0] <= C + 1;
+                C_0[0] <= C; 
                 Src_B_comp <= {1'b0, ~ Src_B} ;
                 ALUResult_i <= S_wider[31:0] ;
                 V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ~^ S_wider[31] );   
             end
             4'b1000: //RSC
             begin
-                C_0[0] <= ~C + 1;
+                C_0[0] <= C;
                 Src_A_comp <= {1'b0, ~ Src_A};
                 ALUResult_i <= S_wider[31:0];
                 // Carry?

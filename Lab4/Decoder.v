@@ -157,7 +157,8 @@ module Decoder(
 					4'b1110: //BIC
 					begin
 						ALUControl = 4'b1011;
-						FlagW = 2'b00
+						FlagW = 2'b00;
+					end
 	    		endcase
 	    	end
 	    	else if (ALUOp == 2'b10) //Mem
