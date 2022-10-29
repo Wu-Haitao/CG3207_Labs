@@ -6,9 +6,6 @@
 
 		
 		LDR R5, ZERO
-		LDR R6, CONSOLE_OUT_ready	; UART ready for output flag
-		LDR R7, CONSOLE_IN_valid	; UART new data flag
-		LDR R8, CONSOLE		; UART
 		LDR R9, SEVENSEG
 		LDR R10, DIPS
 		
@@ -21,15 +18,11 @@ WAIT_NUM_1
 		CMN R4, #0
 		BEQ	WAIT_NUM_1
 
-		ADD R4, R5, #2
-		STR R4, [R10, #-4] ; Set LED
 WAIT_RESET_1
 		LDR R4, [R10]
 		CMP R4, #0
 		BNE WAIT_RESET_1
 
-		ADD R4, R5, #3
-		STR R4, [R10, #-4]
 WAIT_NUM_2
 		LDR R2, [R10] ; Read num_2 from DIPS
 		STR R2, [R9]
@@ -37,33 +30,140 @@ WAIT_NUM_2
 		CMN R4, #0
 		BEQ	WAIT_NUM_2
 
-		ADD R4, R5, #4
-		STR R4, [R10, #-4]
 WAIT_RESET_2
 		LDR R4, [R10]
 		CMP R4, #0
 		BNE WAIT_RESET_2
 
-CAL
-		ADD R4, R5, #5
-		STR R4, [R10, #-4]
-CAL_MUL
-		MUL R3, R1, R2
-		STR R3, [R9] ; Display MUL result
+CAL_EOR
+		EOR R3, R1, R2
+		STR R3, [R9] ; Display EOR result
 		LDR R4, [R10]
 		CMP R4, #3
-		BNE CAL_MUL
+		BNE CAL_EOR
 
-		ADD R4, R5, #6
-		STR R4, [R10, #-4]
-CAL_DIV
-		MLA R3, R1, R2, R5
-		STR R3, [R9] ; Display DIV result
+CAL_RSC
+		RSC R3, R1, R2
+		STR R3, [R9] ; Display RSC result
 		LDR R4, [R10]
 		CMP R4, #0
-		BNE CAL_DIV
-		B CAL
+		BNE CAL_RSC
+
+CAL_BIC
+		BIC R3, R1, R2
+		STR R3, [R9] ; Display BIC result
+		LDR R4, [R10]
+		CMP R4, #3
+		BNE CAL_BIC
+
+WAIT_RESET_3
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_3
+
+		ADD R4, R5, #2
+		STR R4, [R10, #-4] ; Set LED
+WAIT_NUM_3
+		LDR R1, [R10] ; Read num_1 from DIPS
+		MOV R1, R1, LSL #16
+		STR R1, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_3
+
+WAIT_RESET_4
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_4
+
+WAIT_NUM_4
+		LDR R2, [R10] ; Read num_2 from DIPS
+		MOV R2, R2, LSL #16
+		STR R2, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_4
+
+WAIT_RESET_5
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_5
+
+WAIT_NUM_5
+		LDR R6, [R10] ; Read num_3 from DIPS
+		STR R6, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_5
+
+WAIT_RESET_7
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_7
+
+WAIT_NUM_6
+		LDR R7, [R10] ; Read num_4 from DIPS
+		STR R7, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_6
+
+WAIT_RESET_8
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_8
+
+CAL_ADD
+		ADDS R3, R1, R2
+		ADC R8, R6, R7
+		MOV R3, R3, LSR #16
+		MOV R8, R8, LSL #16
+		ADD R3, R3, R8
+		STR R3, [R9] ; Display ADD result
+		LDR R4, [R10]
+		CMP R4, #3
+		BNE CAL_ADD
+
+WAIT_RESET_9
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_9
 		
+TEST_EQ
+		ADD R4, R5, #3
+		STR R4, [R10, #-4] ; Set LED
+WAIT_NUM_7
+		LDR R1, [R10] ; Read num_1 from DIPS
+		STR R1, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_7
+
+WAIT_RESET_10
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_10
+
+WAIT_NUM_8
+		LDR R2, [R10] ; Read num_2 from DIPS
+		STR R2, [R9]
+		LDR R4, [R10, #4] ; Get button state
+		CMN R4, #0
+		BEQ	WAIT_NUM_8
+
+WAIT_RESET_11
+		LDR R4, [R10]
+		CMP R4, #0
+		BNE WAIT_RESET_11
+
+		TEQ R1, R2
+		BNE TEST_EQ
+
+		ADD R4, R5, #4
+		STR R4, [R10, #-4]
+		MVN R3, R1
+		STR R3, [R9] ; Display MVN result
+
 halt	
 		B halt
 ; ------- <\code memory (ROM mapped to Instruction Memory) ends>
@@ -119,4 +219,4 @@ variable1
 		DCD 0x00000000		;  // unsigned int variable1;
 ; ------- <variable memory (RAM mapped to Data Memory) ends>	
 
-		END
+		END	
