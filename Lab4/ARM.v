@@ -94,6 +94,7 @@ module ARM(
     wire [3:0] ALUControl ;
     wire [3:0] ALUFlags ;
     wire [31:0] ALUResult_0;
+    wire C_flag;
     
     // ProgramCounter signals
     wire WE_PC ;    
@@ -214,7 +215,8 @@ module ARM(
                     ALUFlags,
                     PCSrc,
                     RegWrite,
-                    MemWrite
+                    MemWrite,
+                    C_flag
                 );
                 
     // Instantiate Shifter        
@@ -230,6 +232,7 @@ module ARM(
                     Src_A,
                     Src_B,
                     ALUControl,
+                    C_flag,
                     ALUResult_0,
                     ALUFlags
                 );                
