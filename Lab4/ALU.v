@@ -31,6 +31,7 @@ module ALU(
     input [31:0] Src_A,
     input [31:0] Src_B,
     input [3:0] ALUControl,
+    input C_flag,
     output [31:0] ALUResult,
     output [3:0] ALUFlags
     );
@@ -44,8 +45,9 @@ module ALU(
     reg V ;
     
     assign S_wider = Src_A_comp + Src_B_comp + C_0 ;
+
     
-    always@(Src_A, Src_B, ALUControl, S_wider) begin
+    always@(Src_A, Src_B, ALUControl, C_flag, S_wider) begin
         // default values; help avoid latches
         C_0 <= 0 ; 
         Src_A_comp <= {1'b0, Src_A} ;
@@ -57,7 +59,7 @@ module ALU(
             4'b0000:  //ADD
             begin
                 ALUResult_i <= S_wider[31:0] ;
-                V <= ( Src_A[31] ~^ Src_B[31] )  & ( Src_B[31] ^ S_wider[31] );          
+                V <= ( Src_A[31] ~^ Src_B[31] )  & ( Src_A[31] ^ S_wider[31] );          
             end
             
             4'b0001:  //SUB 
@@ -65,7 +67,7 @@ module ALU(
                 C_0[0] <= 1 ;  
                 Src_B_comp <= {1'b0, ~ Src_B} ;
                 ALUResult_i <= S_wider[31:0] ;
-                V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ~^ S_wider[31] );       
+                V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_A[31] ^ S_wider[31] );       
             end
             
             4'b0010: ALUResult_i <= Src_A & Src_B ; //AND
@@ -76,26 +78,27 @@ module ALU(
             	C_0[0] <= 1;
             	Src_A_comp <= {1'b0, ~Src_A};
             	ALUResult_i <= S_wider[31:0];
+            	V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ^ S_wider[31] );     
             end
             4'b0110: //ADC
             begin
-                C_0[0] <= C;
+                C_0[0] <= C_flag;
                 ALUResult_i <= S_wider[31:0] ;
-                V <= ( Src_A[31] ~^ Src_B[31] )  & ( Src_B[31] ^ S_wider[31] );          
+                V <= ( Src_A[31] ~^ Src_B[31] )  & ( Src_A[31] ^ S_wider[31] ); //?     
             end
             4'b0111: //SBC
             begin
-                C_0[0] <= C; 
+                C_0[0] <= C_flag;
                 Src_B_comp <= {1'b0, ~ Src_B} ;
                 ALUResult_i <= S_wider[31:0] ;
-                V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ~^ S_wider[31] );   
+                V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_A[31] ^ S_wider[31] );  //?
             end
             4'b1000: //RSC
             begin
-                C_0[0] <= C;
+                C_0[0] <= C_flag;
                 Src_A_comp <= {1'b0, ~ Src_A};
                 ALUResult_i <= S_wider[31:0];
-                // Carry?
+                V <= ( Src_A[31] ^ Src_B[31] )  & ( Src_B[31] ^ S_wider[31] );  //?
             end
             4'b1001: ALUResult_i <= Src_B; //MOV
             4'b1010: ALUResult_i <= ~Src_B; //MVN
@@ -111,7 +114,6 @@ module ALU(
     assign ALUFlags = {N, Z, C, V} ;
         
 endmodule
-
 
 
 
