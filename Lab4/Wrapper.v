@@ -246,6 +246,7 @@ assign LED_PC = PC[15-N_LEDs_OUT+1 : 2]; // debug showing PC
 ARM ARM1(
 	CLK,
 	RESET,
+	Interrupt,
 	Instr,
 	ReadData,
 	MemWrite,
@@ -346,12 +347,7 @@ end
 //----------------------------------------------------------------
 
 always@(posedge CLK) begin
-	if (PB[0]) begin
-		Interrupt <= 1'b1;
-	end
-	else begin
-		Interrupt <= 1'b0;
-	end
+	Interrupt <= PB[0];
 end
 
 endmodule

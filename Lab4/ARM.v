@@ -39,7 +39,7 @@
 module ARM(
     input CLK,
     input RESET,
-    //input Interrupt,  // for optional future use
+    input Interrupt,  // for optional future use
     input [31:0] Instr,
     input [31:0] ReadData,
     output MemWrite,
@@ -79,7 +79,7 @@ module ARM(
     wire MemW ;
     wire [1:0] FlagW ;
     wire [3:0] Cond ;
-    wire PCSrc ;
+    wire [1:0] PCSrc ;
     wire RegWrite ; 
        
     // Shifter signals
@@ -114,11 +114,15 @@ module ARM(
     wire [31:0] Result2;
     wire Busy;
     
+    // exception handling
+    // wire [31:0] LR = PC + 4; // maybe PC + 4 can be saved with software
+    reg [31:0] HANDLER = 0; // hard-coded exception handler address, change this after writing asm code
+
     // datapath connections here
     assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
     
     // increments PC
-    assign PC_IN = PCSrc ? Result : PCPlus4 ; 
+    assign PC_IN = PCSrc[1] ? HANDLER : (PCSrc[0] ? Result : PCPlus4) ; // control unit asserts PCSrc = 10 when an interrupt occurs.
     assign PCPlus4 = PC + 4 ;
     assign PCPlus8 = PCPlus4 + 4 ;
 
@@ -213,6 +217,7 @@ module ARM(
                     FlagW,
                     Cond,
                     ALUFlags,
+                    Interrupt,
                     PCSrc,
                     RegWrite,
                     MemWrite,
