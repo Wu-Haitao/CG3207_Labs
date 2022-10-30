@@ -114,14 +114,15 @@ module ARM(
     wire [31:0] Result2;
     wire Busy;
     
-    // Exception handling
-    reg LR = PC + 4;
+    // exception handling
+    // wire [31:0] LR = PC + 4; // maybe PC + 4 can be saved with software
+    reg [31:0] HANDLER = 0; // hard-coded exception handler address, change this after writing asm code
 
     // datapath connections here
     assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
     
     // increments PC
-    assign PC_IN = PCSrc[0] ? Result : PCPlus4 ; 
+    assign PC_IN = PCSrc[1] ? HANDLER : (PCSrc[0] ? Result : PCPlus4) ; // control unit asserts PCSrc = 10 when an interrupt occurs.
     assign PCPlus4 = PC + 4 ;
     assign PCPlus8 = PCPlus4 + 4 ;
 

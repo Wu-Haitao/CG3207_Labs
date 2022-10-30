@@ -51,7 +51,7 @@ module CondLogic(
     reg N = 0, Z = 0, C = 0, V = 0 ;
     //<extra signals, if any>
     
-    assign PCSrc = Interrupt ? 10 : (PCS & CondEx);
+    assign PCSrc = Interrupt ? 2'b10 : (PCS & CondEx);
     assign RegWrite = RegW & CondEx & (~NoWrite);
     assign MemWrite = MemW & CondEx;
     assign C_flag = C;
