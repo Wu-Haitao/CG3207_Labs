@@ -39,6 +39,7 @@ module RegFile(
     input [3:0] A2,
     input [3:0] A3,
     input [31:0] WD3,
+    input [31:0] R14,
     input [31:0] R15,
     output [31:0] RD1,
     output [31:0] RD2
@@ -50,8 +51,8 @@ module RegFile(
         // (0 to 14) is sufficient as R15 is not stored. Kept it as (0 to 15) just to supress a warning
 		
     // read
-    assign RD1 = (A1 == 4'b1111) ? R15 : RegBank[A1] ; 
-    assign RD2 = (A2 == 4'b1111) ? R15 : RegBank[A2] ;   
+    assign RD1 = (A1 == 4'b1111) ? R15 : ((A1 == 4'b1110) ? R14 : RegBank[A1]) ; 
+    assign RD2 = (A2 == 4'b1111) ? R15 : ((A2 == 4'b1110) ? R14 : RegBank[A2]) ;   
     
     // write
     always@(posedge CLK)

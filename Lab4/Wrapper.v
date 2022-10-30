@@ -252,8 +252,7 @@ ARM ARM1(
 	MemWrite,
 	PC,
 	ALUResult,
-	WriteData,
-	Interrupt
+	WriteData
 );
 
 //----------------------------------------------------------------
