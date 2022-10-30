@@ -72,6 +72,7 @@ reg[31:0] ReadData ;
 wire MemWrite ;
 wire[31:0] ALUResult ;
 wire[31:0] WriteData ;
+wire Interrupt ;
 
 //----------------------------------------------------------------
 // Address Decode signals
@@ -245,6 +246,7 @@ assign LED_PC = PC[15-N_LEDs_OUT+1 : 2]; // debug showing PC
 ARM ARM1(
 	CLK,
 	RESET,
+	Interrupt,
 	Instr,
 	ReadData,
 	MemWrite,
@@ -337,6 +339,13 @@ end
 always@(posedge CLK) begin
     if( MemWrite && dec_DATA_VAR ) 
         DATA_VAR_MEM[ALUResult[8:2]] <= WriteData ;
+end
+
+//----------------------------------------------------------------
+// Interrupt from push buttons
+//----------------------------------------------------------------
+always@(posedge CLK) begin
+	Interrupt <= PB[0] | PB[1] | PB[2];
 end
 
 endmodule
