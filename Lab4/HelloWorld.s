@@ -11,12 +11,13 @@
 		
 		ADD R4, R5, #1
 		STR R4, [R10, #-4] ; Set LED
+		
 WAIT_NUM_1
 		LDR R1, [R10] ; Read num_1 from DIPS
 		STR R1, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_1
+		CMP R4, #2
+		BNE	WAIT_NUM_1
 
 WAIT_RESET_1
 		LDR R4, [R10]
@@ -27,8 +28,8 @@ WAIT_NUM_2
 		LDR R2, [R10] ; Read num_2 from DIPS
 		STR R2, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_2
+		CMP R4, #2
+		BNE	WAIT_NUM_2
 
 WAIT_RESET_2
 		LDR R4, [R10]
@@ -63,13 +64,14 @@ WAIT_RESET_3
 
 		ADD R4, R5, #2
 		STR R4, [R10, #-4] ; Set LED
+		
 WAIT_NUM_3
 		LDR R1, [R10] ; Read num_1 from DIPS
 		MOV R1, R1, LSL #16
 		STR R1, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_3
+		CMP R4, #2
+		BNE	WAIT_NUM_3
 
 WAIT_RESET_4
 		LDR R4, [R10]
@@ -81,8 +83,8 @@ WAIT_NUM_4
 		MOV R2, R2, LSL #16
 		STR R2, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_4
+		CMP R4, #2
+		BNE	WAIT_NUM_4
 
 WAIT_RESET_5
 		LDR R4, [R10]
@@ -93,8 +95,8 @@ WAIT_NUM_5
 		LDR R6, [R10] ; Read num_3 from DIPS
 		STR R6, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_5
+		CMP R4, #2
+		BNE	WAIT_NUM_5
 
 WAIT_RESET_7
 		LDR R4, [R10]
@@ -105,8 +107,8 @@ WAIT_NUM_6
 		LDR R7, [R10] ; Read num_4 from DIPS
 		STR R7, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_6
+		CMP R4, #2
+		BNE	WAIT_NUM_6
 
 WAIT_RESET_8
 		LDR R4, [R10]
@@ -132,12 +134,13 @@ WAIT_RESET_9
 TEST_EQ
 		ADD R4, R5, #3
 		STR R4, [R10, #-4] ; Set LED
+		
 WAIT_NUM_7
 		LDR R1, [R10] ; Read num_1 from DIPS
 		STR R1, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_7
+		CMP R4, #2
+		BNE	WAIT_NUM_7
 
 WAIT_RESET_10
 		LDR R4, [R10]
@@ -148,8 +151,8 @@ WAIT_NUM_8
 		LDR R2, [R10] ; Read num_2 from DIPS
 		STR R2, [R9]
 		LDR R4, [R10, #4] ; Get button state
-		CMN R4, #0
-		BEQ	WAIT_NUM_8
+		CMP R4, #2
+		BNE	WAIT_NUM_8
 
 WAIT_RESET_11
 		LDR R4, [R10]
@@ -166,6 +169,13 @@ WAIT_RESET_11
 
 halt	
 		B halt
+
+ISR
+		SUB R12, LR, #4
+		ADD R4, R5, #255
+		STR R4, [R10, #-4] ; Set LESs on
+		MOV PC, R12
+		
 ; ------- <\code memory (ROM mapped to Instruction Memory) ends>
 
 
