@@ -54,7 +54,7 @@ module ARM(
     wire [3:0] A2 ;
     wire [3:0] A3 ;
     wire [31:0] WD3 ;
-    wire [31:0] R14 ;
+    reg [31:0] R14 ;
     wire [31:0] R15 ;
     wire [31:0] RD1 ;
     wire [31:0] RD2 ;
@@ -116,7 +116,7 @@ module ARM(
     wire Busy;
     
     // exception handling
-    reg [31:0] HANDLER = 0; // hard-coded exception handler address, change this after writing asm code
+    reg [31:0] HANDLER = 32'h000001C0; // hard-coded exception handler address, change this after writing asm code
 
     // datapath connections here
     assign WE_PC = Busy ? 0 : 1; // Will need to control it for multi-cycle operations (Multiplication, Division) and/or Pipelining with hazard hardware.
@@ -133,7 +133,9 @@ module ARM(
     assign A3 = Start? Instr[19:16] :	Instr[15:12] ;
     assign Result = MemtoReg ? ReadData : ALUResult ; 
     assign WD3 = Result ;
-    assign R14 = PCPlus4 ;
+    always @(posedge CLK) begin
+        if (~PCSrc[1]) R14 <= PCPlus4 ;
+    end
     assign R15 = PCPlus8 ;
     assign WriteData = RD2;
     
