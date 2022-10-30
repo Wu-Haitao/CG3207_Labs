@@ -72,6 +72,7 @@ reg[31:0] ReadData ;
 wire MemWrite ;
 wire[31:0] ALUResult ;
 wire[31:0] WriteData ;
+reg Interrupt;
 
 //----------------------------------------------------------------
 // Address Decode signals
@@ -250,7 +251,8 @@ ARM ARM1(
 	MemWrite,
 	PC,
 	ALUResult,
-	WriteData
+	WriteData,
+	Interrupt
 );
 
 //----------------------------------------------------------------
@@ -337,6 +339,19 @@ end
 always@(posedge CLK) begin
     if( MemWrite && dec_DATA_VAR ) 
         DATA_VAR_MEM[ALUResult[8:2]] <= WriteData ;
+end
+
+//----------------------------------------------------------------
+// Interrupt generation
+//----------------------------------------------------------------
+
+always@(posedge CLK) begin
+	if (PB[0]) begin
+		Interrupt <= 1'b1;
+	end
+	else begin
+		Interrupt <= 1'b0;
+	end
 end
 
 endmodule
